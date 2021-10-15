@@ -6,7 +6,7 @@ def StartGame():
     exit = True
 
     screen = pygame.display.set_mode((screen_width, screen_height))
-    #posMouse = pygame.mouse.get_pos()
+
     pygame.display.set_caption("Flappy bird")
 
 
@@ -14,7 +14,9 @@ def StartGame():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit = False
-        if menu.ChangeMenu() == False:
+        
+        check = menu.ChangeMenu()
+        if check == False:
             menu.StarMenu(screen)
         pygame.display.update()
     pygame.quit()
