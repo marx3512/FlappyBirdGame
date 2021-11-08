@@ -5,18 +5,19 @@ try:
 except:
     print("Não deu certo")
 
-
 def MoveAssets():
-    global posPipeX, posPipeY, posDoorX, posDoorY, posTargetX, posTargetY, TargetYRandom
+    global posPipeX, posPipeY, posDoorX, posDoorY, posTargetX, posTargetY, TargetYRandom, TargetYCalculation
     posPipeX -= 1
     posDoorX -= 1
     posTargetX -= 1
+
     if posPipeX < -80:
         posPipeX = 510
         posDoorX = 510
         posTargetX = 490
         posPipeY = random.randint(200, 600)
         TargetYRandom = random.randint(100, 600)
+        TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
 
 def ChangeMenu():
     mx, my = pygame.mouse.get_pos()
@@ -29,10 +30,13 @@ def ChangeMenu():
     elif pygame.mouse.get_pressed() == (0, 0, 0,):
         return False
 
-# def CheckInputMouse():
-#   mx, my = pygame.mouse.get_pos()
-#    if pygame.mouse.get_pressed() == (1,0,0):
-#       if posTargetX <= mx and mx <= (posTargetX - 200) and posTargetY <= my and my
+def CheckInputMouse():
+    con = 0;
+    mx, my = pygame.mouse.get_pos()
+    if pygame.mouse.get_pressed() == (1,0,0):
+        if targetRect.collidepoint(mx, my):
+            print("Acertei o alvo" + str(con))
+            con = con + 1 
 
 def CreateAssets(posBirdY):
     screen.fill((255, 255, 255))
@@ -48,6 +52,7 @@ menuImg = pygame.image.load("images\Menu_screen.jpg")
 player = pygame.image.load("images/Player(ed).png")
 pistol = pygame.image.load("images/Pistol.png")
 target = pygame.image.load("images/Target(ed).png")
+targetRect = target.get_rect()
 tubeDown = pygame.image.load("images/Tube(down)(ed).png")
 tubeUp = pygame.image.load("images/Tube(up)(ed).png")
 door = pygame.image.load("images/Door(ed).png")
@@ -60,6 +65,7 @@ posPipeX, posPipeY = 310, 250
 posDoorX, posDoorY = 310, 215
 posTargetX, posTargetY = 290, 30
 TargetYRandom = 0
+TargetYCalculation = 0
 createPipe = False
 exit = True
 currentScreen = "Menu"
@@ -69,7 +75,7 @@ screen = pygame.display.set_mode((500, 700))
 pygame.display.set_caption("Flappy Bob")
 
 screen.blit(menuImg, (0, 0))
-
+#targetRect.move_ip(posTargetX, TargetYCalculation)
 
 while exit:
     for event in pygame.event.get():
@@ -87,7 +93,8 @@ while exit:
         CreateAssets(posPlayerY)
         playerMoviment += gravity
         posPlayerY += playerMoviment
-        #CreateAssets()
         MoveAssets()
+        CheckInputMouse()
+        targetRect.update(posTargetX, TargetYCalculation, 50, 60)
     pygame.display.update()
     clock.tick(120)
