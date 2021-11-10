@@ -9,23 +9,24 @@ except:
 
 def MoveAssetsAndRect():
     global posPipeX, posPipeY, posDoorX, posDoorY, posTargetX, posTargetY, TargetYRandom, TargetYCalculation
-    posPipeX -= 1
-    posDoorX -= 1
-    posTargetX -= 1
+    if stop == False:
+        posPipeX -= 1
+        posDoorX -= 1
+        posTargetX -= 1
 
-    targetRect.update(posTargetX, TargetYCalculation, 50, 60)
-    playerRect.update(0, posPlayerY, 51, 50)
-    tubeDownRect.update(posPipeX, posPipeY, 94, 570)
-    tubeUpRect.update(posPipeX, posPipeY - 700, 94, 570)
-    doorRect.update(posDoorX, posPipeY - 132, 96, 138)
+        targetRect.update(posTargetX, TargetYCalculation, 50, 60)
+        playerRect.update(0, posPlayerY, 51, 50)
+        tubeDownRect.update(posPipeX, posPipeY, 94, 570)
+        tubeUpRect.update(posPipeX, posPipeY - 700, 94, 570)
+        doorRect.update(posDoorX, posPipeY - 132, 96, 138)
 
-    if posPipeX < -80:
-        posPipeX = 510
-        posDoorX = 510
-        posTargetX = 490
-        posPipeY = random.randint(200, 600)
-        TargetYRandom = random.randint(100, 600)
-        TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
+        if posPipeX < -80:
+            posPipeX = 510
+            posDoorX = 510
+            posTargetX = 490
+            posPipeY = random.randint(200, 600)
+            TargetYRandom = random.randint(100, 600)
+            TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
 
 def ChangeMenu():
     mx, my = pygame.mouse.get_pos()
@@ -69,6 +70,35 @@ def CreateText(msg, color, tam, x, y):
     texto1 = font.render(msg, True, color)
     screen.blit(texto1, [x, y])
 
+def managerScoreScreen(cond):
+    global posScoreX, posScoreY
+    if cond != "Acertei nada":
+        posScoreX, posScoreY = 200, 220
+        screen.blit(scoreScreen, (140, 230))
+        mx, my = pygame.mouse.get_pos()
+        if pygame.mouse.get_pressed() == (1, 0, 0):
+            if 160 <= mx and mx <= 240 and 300 <= my and my <= 370:
+                return "Restart"
+            elif 260 <= mx and mx <= 330 and 300 <= my and my <= 370:
+                return "Sair"
+
+def ResetGame():
+    global posPlayerY, posPipeX, posPipeY, posDoorX, posDoorY, posTargetX, posTargetY, TargetYRandom, TargetYCalculation, score
+    global gravity, playerMoviment, death, createPipe, stop, exit
+    score = 0
+    posPlayerY = 250
+    gravity = 0.10
+    playerMoviment = 0
+    death = False
+    posPipeX, posPipeY = 570, 250
+    posDoorX, posDoorY = 570, 215
+    posTargetX, posTargetY = 550, 30
+    TargetYRandom = 0
+    TargetYCalculation = 0
+    createPipe = False
+    stop = False
+    exit = True
+
 #files
 menuImg = pygame.image.load("images\Menu_screen.jpg")
 player = pygame.image.load("images/Player(ed).png")
@@ -82,6 +112,8 @@ tubeUp = pygame.image.load("images/Tube(up)(ed).png")
 tubeUpRect = tubeUp.get_rect()
 door = pygame.image.load("images/Door(ed).png")
 doorRect = door.get_rect()
+scoreScreen = pygame.image.load("images/scoreScreen(ed).png")
+
 
 # variable
 score = 0
@@ -89,12 +121,14 @@ posPlayerY = 250
 gravity = 0.10
 playerMoviment = 0
 death = False
-posPipeX, posPipeY = 310, 250
-posDoorX, posDoorY = 310, 215
-posTargetX, posTargetY = 290, 30
+posPipeX, posPipeY = 570, 250
+posDoorX, posDoorY = 570, 215
+posTargetX, posTargetY = 550, 30
+posScoreX, posScoreY = 0, 0
 TargetYRandom = 0
 TargetYCalculation = 0
 createPipe = False
+stop = False
 exit = True
 currentScreen = "Menu"
 clock = pygame.time.Clock()
@@ -117,14 +151,20 @@ while exit:
     elif ChangeMenu() == "Start":
         currentScreen = "Game"
     if currentScreen == "Game":
-        score += 0.1
+        if stop == False:
+            score += 0.1
+            playerMoviment += gravity
+            posPlayerY += playerMoviment
         CreateAssets(posPlayerY)
-        CreateText("Score: " + str(round(score,0)), (0,0,0), 30, 0, 0)
-        playerMoviment += gravity
-        posPlayerY += playerMoviment
+        CreateText("Score: " + str(round(score,0)), (0,0,0), 30, posScoreX, posScoreY)
         CheckInputMouse()
         MoveAssetsAndRect()
         if CheckCollisions() != "Acertei nada":
-            exit = False
+            stop = True
+            cond = managerScoreScreen(CheckCollisions())
+            if cond == "Sair":
+                exit = False
+            elif cond == "Restart":
+                ResetGame()
     pygame.display.update()
     clock.tick(120)
