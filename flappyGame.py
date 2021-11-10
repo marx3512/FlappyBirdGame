@@ -1,15 +1,23 @@
 import pygame, random
 
+from pygame.event import post
+
 try:
     pygame.init()
 except:
     print("Não deu certo")
 
-def MoveAssets():
+def MoveAssetsAndRect():
     global posPipeX, posPipeY, posDoorX, posDoorY, posTargetX, posTargetY, TargetYRandom, TargetYCalculation
     posPipeX -= 1
     posDoorX -= 1
     posTargetX -= 1
+
+    targetRect.update(posTargetX, TargetYCalculation, 50, 60)
+    playerRect.update(0, posPlayerY, 51, 50)
+    tubeDownRect.update(posPipeX, posPipeY, 94, 570)
+    tubeUpRect.update(posPipeX, posPipeY - 700, 94, 570)
+    doorRect.update(posDoorX, posPipeY - 132, 96, 138)
 
     if posPipeX < -80:
         posPipeX = 510
@@ -31,12 +39,22 @@ def ChangeMenu():
         return False
 
 def CheckInputMouse():
-    con = 0;
+    global posTargetX, posDoorX
     mx, my = pygame.mouse.get_pos()
     if pygame.mouse.get_pressed() == (1,0,0):
         if targetRect.collidepoint(mx, my):
-            print("Acertei o alvo" + str(con))
-            con = con + 1 
+            posTargetX = -100
+            posDoorX = -100
+
+def CheckCollisions():
+    if pygame.Rect.colliderect(playerRect,tubeDownRect):
+        return "Acertai tuboDown"
+    elif pygame.Rect.colliderect(playerRect,tubeUpRect):
+        return "Acertei tuboUp"
+    elif pygame.Rect.colliderect(playerRect,doorRect):
+        return "Acertei door"
+    else:
+        return "Acertei nada"
 
 def CreateAssets(posBirdY):
     screen.fill((255, 255, 255))
@@ -46,21 +64,31 @@ def CreateAssets(posBirdY):
     screen.blit(door, (posDoorX, posPipeY - 132))
     screen.blit(target, (posTargetX, (posTargetY - TargetYRandom)*(-1)))
 
+def CreateText(msg, color, tam, x, y):
+    font = pygame.font.SysFont(None, tam)
+    texto1 = font.render(msg, True, color)
+    screen.blit(texto1, [x, y])
 
 #files
 menuImg = pygame.image.load("images\Menu_screen.jpg")
 player = pygame.image.load("images/Player(ed).png")
+playerRect = player.get_rect()
 pistol = pygame.image.load("images/Pistol.png")
 target = pygame.image.load("images/Target(ed).png")
 targetRect = target.get_rect()
 tubeDown = pygame.image.load("images/Tube(down)(ed).png")
+tubeDownRect = tubeDown.get_rect()
 tubeUp = pygame.image.load("images/Tube(up)(ed).png")
+tubeUpRect = tubeUp.get_rect()
 door = pygame.image.load("images/Door(ed).png")
+doorRect = door.get_rect()
 
 # variable
+score = 0
 posPlayerY = 250
 gravity = 0.10
 playerMoviment = 0
+death = False
 posPipeX, posPipeY = 310, 250
 posDoorX, posDoorY = 310, 215
 posTargetX, posTargetY = 290, 30
@@ -75,7 +103,6 @@ screen = pygame.display.set_mode((500, 700))
 pygame.display.set_caption("Flappy Bob")
 
 screen.blit(menuImg, (0, 0))
-#targetRect.move_ip(posTargetX, TargetYCalculation)
 
 while exit:
     for event in pygame.event.get():
@@ -84,17 +111,20 @@ while exit:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and currentScreen == "Game":
                 playerMoviment = 0
-                playerMoviment -= 5
+                playerMoviment -= 3.2
     if ChangeMenu() == "Exit" and currentScreen == "Menu":
         exit = False
     elif ChangeMenu() == "Start":
         currentScreen = "Game"
     if currentScreen == "Game":
+        score += 0.1
         CreateAssets(posPlayerY)
+        CreateText("Score: " + str(round(score,0)), (0,0,0), 30, 0, 0)
         playerMoviment += gravity
         posPlayerY += playerMoviment
-        MoveAssets()
         CheckInputMouse()
-        targetRect.update(posTargetX, TargetYCalculation, 50, 60)
+        MoveAssetsAndRect()
+        if CheckCollisions() != "Acertei nada":
+            exit = False
     pygame.display.update()
     clock.tick(120)
