@@ -64,6 +64,8 @@ def CreateAssets(posBirdY):
     screen.blit(tubeUp, (posPipeX, posPipeY - 700))
     screen.blit(door, (posDoorX, posPipeY - 132))
     screen.blit(target, (posTargetX, (posTargetY - TargetYRandom)*(-1)))
+    screen.blit(scoreScreen, (posTableScoreX, posTableScoreY))
+
 
 def CreateText(msg, color, tam, x, y):
     font = pygame.font.SysFont(None, tam)
@@ -71,10 +73,11 @@ def CreateText(msg, color, tam, x, y):
     screen.blit(texto1, [x, y])
 
 def managerScoreScreen(cond):
-    global posScoreX, posScoreY
+    global posScoreX, posScoreY, posTableScoreX, posTableScoreY
     if cond != "Acertei nada":
-        posScoreX, posScoreY = 200, 220
-        screen.blit(scoreScreen, (140, 230))
+        posScoreX, posScoreY = 200, 260
+        posTableScoreX, posTableScoreY = 140, 230
+        #screen.blit(scoreScreen, (140, 230))
         mx, my = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed() == (1, 0, 0):
             if 160 <= mx and mx <= 240 and 300 <= my and my <= 370:
@@ -84,7 +87,7 @@ def managerScoreScreen(cond):
 
 def ResetGame():
     global posPlayerY, posPipeX, posPipeY, posDoorX, posDoorY, posTargetX, posTargetY, TargetYRandom, TargetYCalculation, score
-    global gravity, playerMoviment, death, createPipe, stop, exit
+    global gravity, playerMoviment, death, createPipe, stop, exit, posScoreX, posScoreY, posTableScoreX, posTableScoreY
     score = 0
     posPlayerY = 250
     gravity = 0.10
@@ -93,6 +96,8 @@ def ResetGame():
     posPipeX, posPipeY = 570, 250
     posDoorX, posDoorY = 570, 215
     posTargetX, posTargetY = 550, 30
+    posScoreX, posScoreY = 0, 0
+    posTableScoreX, posTableScoreY = -100, -300
     TargetYRandom = 0
     TargetYCalculation = 0
     createPipe = False
@@ -125,6 +130,7 @@ posPipeX, posPipeY = 570, 250
 posDoorX, posDoorY = 570, 215
 posTargetX, posTargetY = 550, 30
 posScoreX, posScoreY = 0, 0
+posTableScoreX, posTableScoreY = -100, -300
 TargetYRandom = 0
 TargetYCalculation = 0
 createPipe = False
