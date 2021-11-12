@@ -17,7 +17,7 @@ def MoveAssetsAndRect():
         targetRect.update(posTargetX, TargetYCalculation, 50, 60)
         playerRect.update(0, posPlayerY, 51, 50)
         tubeDownRect.update(posPipeX, posPipeY, 94, 570)
-        tubeUpRect.update(posPipeX, posPipeY - 700, 94, 570)
+        tubeUpRect.update(posPipeX, posPipeY - 710, 94, 570)
         doorRect.update(posDoorX, posPipeY - 132, 96, 138)
 
         if posPipeX < -80:
@@ -66,7 +66,6 @@ def CreateAssets(posBirdY):
     screen.blit(target, (posTargetX, (posTargetY - TargetYRandom)*(-1)))
     screen.blit(scoreScreen, (posTableScoreX, posTableScoreY))
 
-
 def CreateText(msg, color, tam, x, y):
     font = pygame.font.SysFont(None, tam)
     texto1 = font.render(msg, True, color)
@@ -77,7 +76,6 @@ def managerScoreScreen(cond):
     if cond != "Acertei nada":
         posScoreX, posScoreY = 200, 260
         posTableScoreX, posTableScoreY = 140, 230
-        #screen.blit(scoreScreen, (140, 230))
         mx, my = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed() == (1, 0, 0):
             if 160 <= mx and mx <= 240 and 300 <= my and my <= 370:
@@ -119,7 +117,6 @@ door = pygame.image.load("images/Door(ed).png")
 doorRect = door.get_rect()
 scoreScreen = pygame.image.load("images/scoreScreen(ed).png")
 
-
 # variable
 score = 0
 posPlayerY = 250
@@ -159,6 +156,13 @@ while exit:
     if currentScreen == "Game":
         if stop == False:
             score += 0.1
+            if posPlayerY <= 0:
+                posPlayerY = 0
+            elif posPlayerY > 0 and posPlayerY < 630:
+                gravity = 0.10
+            elif posPlayerY >= 630:
+                posPlayerY = 630
+                gravity = 0
             playerMoviment += gravity
             posPlayerY += playerMoviment
         CreateAssets(posPlayerY)
