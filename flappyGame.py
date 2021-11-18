@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, os
 
 from pygame.event import post
 
@@ -12,9 +12,8 @@ def MoveAssetsAndRect():
     if stop == False:
         posPipeX -= 1
         posDoorX -= 1
-        posTargetX -= 1
 
-        targetRect.update(posTargetX, TargetYCalculation, 50, 60)
+        #targetRect.update(posTargetX, TargetYCalculation, 50, 60)
         playerRect.update(0, posPlayerY, 51, 50)
         tubeDownRect.update(posPipeX, posPipeY, 94, 570)
         tubeUpRect.update(posPipeX, posPipeY - 710, 94, 570)
@@ -23,10 +22,9 @@ def MoveAssetsAndRect():
         if posPipeX < -80:
             posPipeX = 510
             posDoorX = 510
-            posTargetX = 490
             posPipeY = random.randint(200, 600)
-            TargetYRandom = random.randint(100, 600)
-            TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
+            #TargetYRandom = random.randint(100, 600)
+            #TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
 
 def ChangeMenu():
     mx, my = pygame.mouse.get_pos()
@@ -56,6 +54,28 @@ def CheckCollisions():
         return "Acertei door"
     else:
         return "Acertei nada"
+
+def CheckStyleTargetAndMove(cond):
+    global posTargetX, posTargetY, TargetYCalculation, TargetYRandom
+    targetRect.update(posTargetX, TargetYCalculation, 50, 60)
+    if posPipeX <= -80:
+        posTargetX = 490
+        TargetYRandom = random.randint(100, 600)
+        TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
+    
+    if cond == 0:
+        posTargetX -= 1
+    if cond == 1:
+        posTargetX -= 1
+        if posPipeX < 700:
+            posTargetY -= 1
+        if posTargetY >= 630:
+            posTargetY = 0
+    while pygame.Rect.colliderect(targetRect, doorRect):
+        TargetYRandom = random.randint(100, 600)
+        TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
+        targetRect.update(posTargetX, TargetYCalculation, 50, 60)
+    
 
 def CreateAssets(posBirdY):
     screen.fill((255, 255, 255))
@@ -102,20 +122,22 @@ def ResetGame():
     stop = False
     exit = True
 
+os.chdir(os.path.dirname(__file__))
+
 #files
-menuImg = pygame.image.load("images\Menu_screen.jpg")
-player = pygame.image.load("images/Player(ed).png")
+menuImg = pygame.image.load(os.path.join('images', 'Menu_screen.jpg'))
+player = pygame.image.load(os.path.join('images', 'Player(ed).png'))
 playerRect = player.get_rect()
-pistol = pygame.image.load("images/Pistol.png")
-target = pygame.image.load("images/Target(ed).png")
+pistol = pygame.image.load(os.path.join('images', 'Pistol.png'))
+target = pygame.image.load(os.path.join('images', 'Target(ed).png'))
 targetRect = target.get_rect()
-tubeDown = pygame.image.load("images/Tube(down)(ed).png")
+tubeDown = pygame.image.load(os.path.join('images', 'Tube(down)(ed).png'))
 tubeDownRect = tubeDown.get_rect()
-tubeUp = pygame.image.load("images/Tube(up)(ed).png")
+tubeUp = pygame.image.load(os.path.join('images', 'Tube(up)(ed).png'))
 tubeUpRect = tubeUp.get_rect()
-door = pygame.image.load("images/Door(ed).png")
+door = pygame.image.load(os.path.join('images', 'Door(ed).png'))
 doorRect = door.get_rect()
-scoreScreen = pygame.image.load("images/scoreScreen(ed).png")
+scoreScreen = pygame.image.load(os.path.join('images', 'scoreScreen(ed).png'))
 
 # variable
 score = 0
@@ -169,6 +191,7 @@ while exit:
         CreateText("Score: " + str(round(score,0)), (0,0,0), 30, posScoreX, posScoreY)
         CheckInputMouse()
         MoveAssetsAndRect()
+        CheckStyleTargetAndMove(0)
         if CheckCollisions() != "Acertei nada":
             stop = True
             cond = managerScoreScreen(CheckCollisions())
