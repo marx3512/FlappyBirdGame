@@ -1,4 +1,4 @@
-import pygame, random, os
+import pygame, random, os, math
 
 from pygame.event import post
 
@@ -29,10 +29,14 @@ def MoveAssetsAndRect():
 def ChangeMenu():
     mx, my = pygame.mouse.get_pos()
     if pygame.mouse.get_pressed() == (1, 0, 0):
-        if 180 <= mx and mx <= 300 and 380 <= my and my <= 490:
+        if 85 <= mx and mx <= 210 and 400 <= my and my <= 520:
             return "Start"
-        elif 180 <= mx and mx <= 300 and 535 <= my and my <= 660:
+        elif 160 <= mx and mx <= 285 and 545 <= my and my <= 670:
             return "Exit"
+        elif 255 <= mx and mx <= 388 and 400 <= my and my <= 525:
+            return "Tutorial"
+        elif 17 <= mx and mx <= 100 and 610 <= my and my <= 680:
+            return "ReturnMenu"
 
     elif pygame.mouse.get_pressed() == (0, 0, 0,):
         return False
@@ -56,8 +60,9 @@ def CheckCollisions():
         return "Acertei nada"
 
 def CheckStyleTargetAndMove(cond):
-    global posTargetX, posTargetY, TargetYCalculation, TargetYRandom
+    global posTargetX, posTargetY, TargetYCalculation, TargetYRandom, TimerResTarget
     targetRect.update(posTargetX, TargetYCalculation, 50, 60)
+
     if posPipeX <= -80:
         posTargetX = 490
         TargetYRandom = random.randint(100, 600)
@@ -67,19 +72,29 @@ def CheckStyleTargetAndMove(cond):
         posTargetX -= 1
     if cond == 1:
         posTargetX -= 1
-        if posPipeX < 700:
-            posTargetY -= 1
-        if posTargetY >= 630:
-            posTargetY = 0
+        TimerResTarget -= 0.2
+        if TimerResTarget <= 0:
+            TargetYRandom = random.randint(100, 600)
+            TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
+            targetRect.update(posTargetX, TargetYCalculation, 50, 60)
+            TimerResTarget = 15
+
     while pygame.Rect.colliderect(targetRect, doorRect):
         TargetYRandom = random.randint(100, 600)
         TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
         targetRect.update(posTargetX, TargetYCalculation, 50, 60)
-    
+
+def CalculationAnglePistol( ):
+    mx, my = pygame.mouse.get_pos()
+    relationX, relationY = mx - 28, my - posPlayerY
+    angle = (180/math.pi) * -math.atan2(relationY, relationX)
+
+    return int(angle)
 
 def CreateAssets(posBirdY):
     screen.fill((255, 255, 255))
     screen.blit(player, (0, posBirdY))
+    screen.blit(pygame.transform.rotate(pistol,CalculationAnglePistol()), (28,posBirdY + 13))
     screen.blit(tubeDown, (posPipeX, posPipeY))
     screen.blit(tubeUp, (posPipeX, posPipeY - 700))
     screen.blit(door, (posDoorX, posPipeY - 132))
@@ -126,9 +141,10 @@ os.chdir(os.path.dirname(__file__))
 
 #files
 menuImg = pygame.image.load(os.path.join('images', 'Menu_screen.jpg'))
+TutorialImg = pygame.image.load(os.path.join('images', 'TutorialImage.png'))
 player = pygame.image.load(os.path.join('images', 'Player(ed).png'))
 playerRect = player.get_rect()
-pistol = pygame.image.load(os.path.join('images', 'Pistol.png'))
+pistol = pygame.image.load(os.path.join('images', 'Pistol(ed).png'))
 target = pygame.image.load(os.path.join('images', 'Target(ed).png'))
 targetRect = target.get_rect()
 tubeDown = pygame.image.load(os.path.join('images', 'Tube(down)(ed).png'))
@@ -150,8 +166,10 @@ posDoorX, posDoorY = 570, 215
 posTargetX, posTargetY = 550, 30
 posScoreX, posScoreY = 0, 0
 posTableScoreX, posTableScoreY = -100, -300
+posTutorialX,posTutorialY = -500, -500
 TargetYRandom = 0
 TargetYCalculation = 0
+TimerResTarget = 15
 createPipe = False
 stop = False
 exit = True
@@ -164,6 +182,8 @@ pygame.display.set_caption("Flappy Bob")
 screen.blit(menuImg, (0, 0))
 
 while exit:
+    
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT :
             exit = False
@@ -173,8 +193,18 @@ while exit:
                 playerMoviment -= 3.2
     if ChangeMenu() == "Exit" and currentScreen == "Menu":
         exit = False
-    elif ChangeMenu() == "Start":
+    elif ChangeMenu() == "Start" and currentScreen == "Menu":
         currentScreen = "Game"
+    elif ChangeMenu() == "Tutorial" and currentScreen == "Menu":
+        currentScreen = "Tutorial"
+        screen.blit(TutorialImg, (0, 0))
+        print("BBB")
+    elif ChangeMenu() == "ReturnMenu" and currentScreen == "Tutorial":
+        currentScreen = "Menu"
+        
+        screen.blit(menuImg, (0, 0))
+        print("AAAA")
+
     if currentScreen == "Game":
         if stop == False:
             score += 0.1
@@ -191,7 +221,7 @@ while exit:
         CreateText("Score: " + str(round(score,0)), (0,0,0), 30, posScoreX, posScoreY)
         CheckInputMouse()
         MoveAssetsAndRect()
-        CheckStyleTargetAndMove(0)
+        CheckStyleTargetAndMove(1)
         if CheckCollisions() != "Acertei nada":
             stop = True
             cond = managerScoreScreen(CheckCollisions())
@@ -199,5 +229,6 @@ while exit:
                 exit = False
             elif cond == "Restart":
                 ResetGame()
+            
     pygame.display.update()
     clock.tick(120)
