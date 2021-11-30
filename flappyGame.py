@@ -13,7 +13,6 @@ def MoveAssetsAndRect():
         posPipeX -= 1
         posDoorX -= 1
 
-        #targetRect.update(posTargetX, TargetYCalculation, 50, 60)
         playerRect.update(0, posPlayerY, 51, 50)
         tubeDownRect.update(posPipeX, posPipeY, 94, 570)
         tubeUpRect.update(posPipeX, posPipeY - 710, 94, 570)
@@ -23,8 +22,6 @@ def MoveAssetsAndRect():
             posPipeX = 510
             posDoorX = 510
             posPipeY = random.randint(200, 600)
-            #TargetYRandom = random.randint(100, 600)
-            #TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
 
 def ChangeMenu():
     mx, my = pygame.mouse.get_pos()
@@ -60,7 +57,7 @@ def CheckCollisions():
         return "Acertei nada"
 
 def CheckStyleTargetAndMove(cond):
-    global posTargetX, posTargetY, TargetYCalculation, TargetYRandom, TimerResTarget
+    global posTargetX, posTargetY, TargetYCalculation, TargetYRandom, TimerResTarget, target, targetRect
     targetRect.update(posTargetX, TargetYCalculation, 50, 60)
 
     if posPipeX <= -80:
@@ -77,7 +74,13 @@ def CheckStyleTargetAndMove(cond):
             TargetYRandom = random.randint(100, 600)
             TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
             targetRect.update(posTargetX, TargetYCalculation, 50, 60)
-            TimerResTarget = 15
+            TimerResTarget = 12
+    if cond == 2:
+        posTargetX -=1
+        target = pygame.transform.scale(target, (30, 30))
+        TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
+        screen.blit(target, (posTargetX + 20, TargetYCalculation + 50))
+        targetRect.update(posTargetX + 20, TargetYCalculation + 50, 30, 30)
 
     while pygame.Rect.colliderect(targetRect, doorRect):
         TargetYRandom = random.randint(100, 600)
@@ -91,14 +94,15 @@ def CalculationAnglePistol( ):
 
     return int(angle)
 
-def CreateAssets(posBirdY):
+def CreateAssets(posBirdY, cond):
     screen.fill((255, 255, 255))
     screen.blit(player, (0, posBirdY))
     screen.blit(pygame.transform.rotate(pistol,CalculationAnglePistol()), (28,posBirdY + 13))
     screen.blit(tubeDown, (posPipeX, posPipeY))
     screen.blit(tubeUp, (posPipeX, posPipeY - 700))
     screen.blit(door, (posDoorX, posPipeY - 132))
-    screen.blit(target, (posTargetX, (posTargetY - TargetYRandom)*(-1)))
+    if cond != 2:
+        screen.blit(target, (posTargetX, (posTargetY - TargetYRandom)*(-1)))
     screen.blit(scoreScreen, (posTableScoreX, posTableScoreY))
 
 def CreateText(msg, color, tam, x, y):
@@ -169,7 +173,8 @@ posTableScoreX, posTableScoreY = -100, -300
 posTutorialX,posTutorialY = -500, -500
 TargetYRandom = 0
 TargetYCalculation = 0
-TimerResTarget = 15
+TimerResTarget = 12
+condStyleTarget = 0
 createPipe = False
 stop = False
 exit = True
@@ -182,8 +187,6 @@ pygame.display.set_caption("Flappy Bob")
 screen.blit(menuImg, (0, 0))
 
 while exit:
-    
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT :
             exit = False
@@ -198,12 +201,9 @@ while exit:
     elif ChangeMenu() == "Tutorial" and currentScreen == "Menu":
         currentScreen = "Tutorial"
         screen.blit(TutorialImg, (0, 0))
-        print("BBB")
     elif ChangeMenu() == "ReturnMenu" and currentScreen == "Tutorial":
         currentScreen = "Menu"
-        
         screen.blit(menuImg, (0, 0))
-        print("AAAA")
 
     if currentScreen == "Game":
         if stop == False:
@@ -217,11 +217,12 @@ while exit:
                 gravity = 0
             playerMoviment += gravity
             posPlayerY += playerMoviment
-        CreateAssets(posPlayerY)
+        condStyleTarget = 0
+        CreateAssets(posPlayerY, condStyleTarget)
         CreateText("Score: " + str(round(score,0)), (0,0,0), 30, posScoreX, posScoreY)
         CheckInputMouse()
         MoveAssetsAndRect()
-        CheckStyleTargetAndMove(1)
+        CheckStyleTargetAndMove(condStyleTarget)
         if CheckCollisions() != "Acertei nada":
             stop = True
             cond = managerScoreScreen(CheckCollisions())
