@@ -67,21 +67,21 @@ def CheckStyleTargetAndMove(cond):
     
     if cond == 0:
         posTargetX -= 1
-    if cond == 1:
-        posTargetX -= 1
+    if cond == 1 or cond == 3:
+        if cond == 1:
+            posTargetX -= 1
         TimerResTarget -= 0.2
         if TimerResTarget <= 0:
             TargetYRandom = random.randint(100, 600)
             TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
             targetRect.update(posTargetX, TargetYCalculation, 50, 60)
             TimerResTarget = 12
-    if cond == 2:
+    if cond == 2 or cond == 3:
         posTargetX -=1
         target = pygame.transform.scale(target, (30, 30))
         TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
         screen.blit(target, (posTargetX + 20, TargetYCalculation + 50))
         targetRect.update(posTargetX + 20, TargetYCalculation + 50, 30, 30)
-
     while pygame.Rect.colliderect(targetRect, doorRect):
         TargetYRandom = random.randint(100, 600)
         TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
@@ -101,7 +101,7 @@ def CreateAssets(posBirdY, cond):
     screen.blit(tubeDown, (posPipeX, posPipeY))
     screen.blit(tubeUp, (posPipeX, posPipeY - 700))
     screen.blit(door, (posDoorX, posPipeY - 132))
-    if cond != 2:
+    if cond != 2 and cond != 3:
         screen.blit(target, (posTargetX, (posTargetY - TargetYRandom)*(-1)))
     screen.blit(scoreScreen, (posTableScoreX, posTableScoreY))
 
