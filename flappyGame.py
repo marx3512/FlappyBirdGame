@@ -217,7 +217,7 @@ while exit:
                 gravity = 0
             playerMoviment += gravity
             posPlayerY += playerMoviment
-        condStyleTarget = 0
+        condStyleTarget = 3
         CreateAssets(posPlayerY, condStyleTarget)
         CreateText("Score: " + str(round(score,0)), (0,0,0), 30, posScoreX, posScoreY)
         CheckInputMouse()
