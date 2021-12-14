@@ -87,6 +87,17 @@ def CheckStyleTargetAndMove(cond):
         TargetYCalculation = (posTargetY - TargetYRandom)*(-1)
         targetRect.update(posTargetX, TargetYCalculation, 50, 60)
 
+def CheckScore(score):
+    global condStyleTarget
+    if score >= 0 and score <= 200:
+        condStyleTarget = 0
+    elif score >= 201 and score <= 400:
+        condStyleTarget = 1
+    elif score >= 401 and score <= 600:
+        condStyleTarget = 2
+    elif score >= 601 and score <= 800:
+        condStyleTarget = 3 
+
 def CalculationAnglePistol( ):
     mx, my = pygame.mouse.get_pos()
     relationX, relationY = mx - 28, my - posPlayerY
@@ -217,7 +228,7 @@ while exit:
                 gravity = 0
             playerMoviment += gravity
             posPlayerY += playerMoviment
-        condStyleTarget = 3
+        CheckScore(score)
         CreateAssets(posPlayerY, condStyleTarget)
         CreateText("Score: " + str(round(score,0)), (0,0,0), 30, posScoreX, posScoreY)
         CheckInputMouse()
